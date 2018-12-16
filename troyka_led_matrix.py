@@ -12,6 +12,13 @@ MATRIX_SIZE_6X10 = const(2)
 MATRIX_SIZE_5X11 = const(3)
 MATRIX_SIZE_MASK = const(3)
 
+matrix_sizes = (
+    (8, 8),
+    (7, 9),
+    (6, 10),
+    (5, 11),
+)
+
 MATRIX_MIN_ROWS = const(8)
 MATRIX_MAX_ROWS = const(11)
 MATRIX_MIN_COLS = const(5)
@@ -65,26 +72,15 @@ class TroykaLedMatrix:
                 (self._currentLimit << BIT_EFFECT_ROW_CURRENT))
         return data
     
-    def setCurrentLimit(self, value):
+    def set_current_limit(self, value):
         self._currentLimit = value & ROW_CURRENT_MASK
         self._writeReg(REG_ADDR_LIGHTING_EFFECT, self._makeEffectReg())
     
-    def setMatrixSize(self, value):
+    def set_matrix_size(self, value):
         self._matrixSize = (value & MATRIX_SIZE_MASK)
         data = self._makeConfigReg()
         self._writeReg(REG_ADDR_CONFIGURATION, data)
-        if self._matrixSize == MATRIX_SIZE_8X8:
-            self._width = 8
-            self._height = 8
-        elif self._matrixSize == MATRIX_SIZE_7X9:
-            self._width = 7
-            self._height = 9
-        elif self._matrixSize == MATRIX_SIZE_6X10:
-            self._width = 6
-            self._height = 10
-        elif self._matrixSize == MATRIX_SIZE_5X11:
-            self._width = 5
-            self._height = 11
+        self._width, self._height = matrix_sizes[self._matrixSize]
     
     def _getRow(self, y):
         # rotation is not implemented yet
@@ -116,7 +112,7 @@ class TroykaLedMatrix:
         if update:
             self.update_display()
     
-    def __init__(self, i2c=None, address=I2C_ADDR_BASE, matrix_size = MATRIX_SIZE_8X8):
+    def __init__(self, i2c=None, address=I2C_ADDR_BASE, matrix_size=MATRIX_SIZE_8X8):
         self._i2c_address = address
 
         if i2c is not None:
@@ -128,8 +124,8 @@ class TroykaLedMatrix:
         self._audio_input = False
         self._audioEqualizer = False
         self._audioInputGain = AUDIO_GAIN_0DB
-        self.setCurrentLimit(ROW_CURRENT_05MA)
-        self.setMatrixSize(matrix_size)
+        self.set_current_limit(ROW_CURRENT_05MA)
+        self.set_matrix_size(matrix_size)
         self._writeReg(REG_ADDR_CONFIGURATION, self._makeConfigReg())
         self._writeReg(REG_ADDR_LIGHTING_EFFECT, self._makeEffectReg())
         
