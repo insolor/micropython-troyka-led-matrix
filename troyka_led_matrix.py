@@ -90,28 +90,31 @@ class TroykaLedMatrix:
         # rotation is not implemented yet
         return self._data[y % self._height]
     
-    def _updateDisplay(self):
+    def update_display(self):
         for i in range(self._height):
             data = self._getRow(i)
             self._writeReg(REG_ADDR_COLUMN_DATA + i, data)
         
         self._writeReg(REG_ADDR_UPDATE_COLUMN, 0xff)
     
-    def clear(self):
+    def clear(self, update=True):
         self._data = bytearray(MATRIX_MAX_ROWS)
-        self._updateDisplay()
+        if update:
+            self.update_display()
     
-    def draw_pixel(self, x, y):
+    def draw_pixel(self, x, y, update=True):
         i = x % 8
         j = y % MATRIX_MAX_ROWS
         self._data[j] |= 1 << i
-        self._updateDisplay()
+        if update:
+            self.update_display()
     
-    def clear_pixel(self, x, y):
+    def clear_pixel(self, x, y, update=True):
         i = x % 8
         j = y % MATRIX_MAX_ROWS
         self._data[j] &= ~(1 << i)
-        self._updateDisplay()
+        if update:
+            self.update_display()
     
     def __init__(self, i2c=None, address=I2C_ADDR_BASE, matrix_size = MATRIX_SIZE_8X8):
         self._i2c_address = address
