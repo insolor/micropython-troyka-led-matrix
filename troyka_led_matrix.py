@@ -4,7 +4,6 @@
 from machine import I2C, Pin
 from micropython import const
 
-i2c = I2C(scl=Pin(0, Pin.OUT), sda=Pin(2, Pin.OUT))
 I2C_ADDR_BASE = const(0x60)
 
 MATRIX_SIZE_8X8 = const(0)
@@ -114,9 +113,14 @@ class TroykaLedMatrix:
         self._data[j] &= ~(1 << i)
         self._updateDisplay()
     
-    def __init__(self, i2c=i2c, address=I2C_ADDR_BASE, matrix_size = MATRIX_SIZE_8X8):
+    def __init__(self, i2c=None, address=I2C_ADDR_BASE, matrix_size = MATRIX_SIZE_8X8):
         self._i2c_address = address
-        self.i2c = i2c
+
+        if i2c is not None:
+            self.i2c = i2c
+        else:
+            self.i2c = I2C(scl=Pin(0, Pin.OUT), sda=Pin(2, Pin.OUT))
+
         self._shut_down = False
         self._audio_input = False
         self._audioEqualizer = False
